@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const BestFriend = require('../model/BestFriend');
 const User = require('../model/User');
 
 // middleware for validating input
@@ -10,9 +9,6 @@ const User = require('../model/User');
 router.get('/', async (_, res) => {
 	try {
 		const users = await User.find();
-		if (!user) {
-			errorMessage: `User with username '${req.params.username}' not found.`
-		}
 		return res.send(users);
 	} catch (err) {
 		return res.status(500).send({
