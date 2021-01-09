@@ -59,6 +59,38 @@ router.post('/', async (req, res) => {
 	}
 });
 
+router.post('/:username/friend/:fname', async (req, res) => {
+	try {
+		const { username, fname } = req.params;
+		const user = await User.findOne({ username });
+		const fuser = await User.findOne({ username: fname });
+		if (!user)
+			return res.status(404).send({
+				errorMessage: `User with username '${username}' not found.`
+			});
+		if (!fuser)
+			return res.status(404).send({
+				errorMessage: `User with username '${fname}' not found.`
+			});
+		if (user.friends.length === 5)
+			return res.status(400).send({
+				errorMessage: `User with username '${username}' already has 5 friends.`
+			});
+		if (user.friends.includes(fname))
+			return res.status(400).send({
+				errorMessage: `User with username '${username}' is already friends with user '${fname}'.`
+			});
+		user.friends.push(fname);
+		await User.findOneAndUpdate({ username }, user);
+		return res.send(user);
+	} catch (err) {
+		return res.status(500).send({
+			errorMessage: 'An internal server error has occured.',
+			error
+		});
+	}
+});
+
 router.put('/:username', async (req, res) => {
 	try {
 		const { email, username } = req.body;
@@ -98,6 +130,29 @@ router.delete('/:username', async (req, res) => {
 		return res.status(500).send({
 			errorMessage: 'An internal server error has occured.',
 			error: error
+		});
+	}
+});
+
+router.delete('/:username/friend/:fname', async (req, res) => {
+	try {
+		const { username, fname } = req.params;
+		const user = await User.findOne({ username });
+		if (!user)
+			return res.status(404).send({
+				errorMessage: `User with username '${username}' not found.`
+			});
+		if (!user.friends.includes(fname))
+			return res.status(400).send({
+				errorMessage: `User with username '${username}' is not friends with user '${fname}'.`
+			});
+		user.friends = user.friends.filter(f => f !== fname);
+		await User.findOneAndUpdate({ username }, user);
+		return res.send(user);
+	} catch (err) {
+		return res.status(500).send({
+			errorMessage: 'An internal server error has occured.',
+			error
 		});
 	}
 });
