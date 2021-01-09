@@ -28,7 +28,7 @@ router.get('/:username', async (req, res) => {
 				errorMessage: `User with username '${req.params.username}' not found.`
 			});
 		return res.send(user);
-	} catch (err) {
+	} catch (error) {
 		return res.status(500).send({
 			errorMessage: 'An internal server error has occured.',
 			error
